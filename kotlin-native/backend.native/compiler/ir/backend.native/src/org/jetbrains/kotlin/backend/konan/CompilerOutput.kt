@@ -108,8 +108,9 @@ private fun collectLlvmModules(generationState: NativeGenerationState, generated
             exceptionsSupportNativeLibrary +
             xcTestRunnerNativeLibrary
 
-    val runtimeNativeLibraries = config.runtimeNativeLibraries
-
+    // If runtime should be emitted, include optimized runtime modules in the list to merge
+    val runtimeFlag = generationState.config.emitRuntime
+    val runtimeNativeLibraries = if (runtimeFlag) config.runtimeNativeLibraries else config.runtimeOnlyLibraries
 
     fun parseBitcodeFiles(files: List<String>): List<LLVMModuleRef> = files.map { bitcodeFile ->
         val parsedModule = parseBitcodeFile(generationState.llvmContext, bitcodeFile)
@@ -137,11 +138,8 @@ private fun linkAllDependencies(generationState: NativeGenerationState, generate
 
     // When the main module `generationState.llvmModule` is very large it is much faster to
     // link all the auxiliary modules together first before linking with the main module.
-    // If runtime should be emitted, include optimized runtime modules in the list to merge
-    val runtimeFlag = generationState.config.emitRuntime
-    val finalModules = if (runtimeFlag) optimizedRuntimeModules + additionalModules else additionalModules
 
-    val linkedModules = finalModules.reduceOrNull { acc, module ->
+    val linkedModules = (optimizedRuntimeModules + additionalModules).reduceOrNull { acc, module ->
         val failed = llvmLinkModules2(generationState, acc, module)
         if (failed != 0) {
             error("Failed to link ${module.getName()}")
