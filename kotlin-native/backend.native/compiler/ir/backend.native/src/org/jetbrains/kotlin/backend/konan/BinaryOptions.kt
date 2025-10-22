@@ -19,6 +19,7 @@ object BinaryOptions : BinaryOptionRegistry() {
 
     val splitBCfile by booleanOption()
 
+    val splitNum by uintOption()
     val optPhase1 by booleanOption()
 
     val optPhase2 by booleanOption()

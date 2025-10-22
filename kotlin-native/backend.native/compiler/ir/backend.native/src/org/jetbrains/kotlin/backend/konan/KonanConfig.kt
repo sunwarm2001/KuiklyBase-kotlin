@@ -138,6 +138,9 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
     val splitBCfile: Boolean
         get() = configuration.get(BinaryOptions.splitBCfile) ?: true
 
+    val splitNum: UInt
+        get() = configuration.get(BinaryOptions.splitNum) ?: 6u
+
     val optPhase1: Boolean
         get() = configuration.get(BinaryOptions.optPhase1) ?: true
 

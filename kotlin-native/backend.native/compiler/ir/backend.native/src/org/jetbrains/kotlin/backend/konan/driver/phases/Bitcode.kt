@@ -297,6 +297,9 @@ internal fun <T : BitcodePostProcessingContext> PhaseEngine<T>.runBitcodePostPro
     )
     
     var bitcodeFile: File? = null
+
+    val splitNum = context.config.splitNum
+
     useContext(OptimizationState(context.config, optimizationConfig)) { bitcodeEngine ->
         val tempFiles = createTempFiles(context.config, null)
         val bitcodeFiletmp = tempFiles.create(context.config.shortModuleName ?: "tmp_ori", ".bc")
@@ -312,10 +315,10 @@ internal fun <T : BitcodePostProcessingContext> PhaseEngine<T>.runBitcodePostPro
         println("Created BC file: ${bitcodeFile!!.absolutePath} (${bitcodeFile!!.length()} bytes)")
 
         val outputPrefix = bitcodeFile!!.absolutePath.removeSuffix(".bc") + "_part_"
-        splitBitcodeFile(context, bitcodeFile!!.absolutePath, 2u, outputPrefix)
+        splitBitcodeFile(context, bitcodeFile!!.absolutePath, splitNum, outputPrefix)
 
         println("Checking partition files:")
-        for (i in 0 until 2) {
+        for (i in 0 until splitNum.toInt()) {
             val partFile = "${bitcodeFile!!.absolutePath.removeSuffix(".bc")}_part_$i"
             val exists = File(partFile).exists()
             val length = if (exists) File(partFile).length() else 0
@@ -324,7 +327,7 @@ internal fun <T : BitcodePostProcessingContext> PhaseEngine<T>.runBitcodePostPro
     }
 
     val processedModules = runBlocking {
-        val jobs = (0 until 2).map { i ->
+        val jobs = (0 until splitNum.toInt()).map { i ->
             async(Dispatchers.Default) {
                 val partFile = "${bitcodeFile?.absolutePath?.removeSuffix(".bc") ?: "unknown"}_part_$i"
                 val independentContext = LLVMContextCreate()!!
