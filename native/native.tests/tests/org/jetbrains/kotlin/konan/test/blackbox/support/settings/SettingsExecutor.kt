@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.konan.test.blackbox.support.settings
 
 import org.jetbrains.kotlin.konan.target.AppleConfigurables
+import org.jetbrains.kotlin.konan.target.OhosConfigurables
 import org.jetbrains.kotlin.konan.target.ConfigurablesWithEmulator
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.isSimulator
@@ -49,6 +50,7 @@ val Settings.testProcessExecutor: Executor
                 configurables is ConfigurablesWithEmulator -> EmulatorExecutor(configurables)
                 configurables is AppleConfigurables && configurables.targetTriple.isSimulator -> XcodeSimulatorExecutor(configurables)
                 configurables is AppleConfigurables && RosettaExecutor.availableFor(configurables) -> RosettaExecutor(configurables)
+                configurables is OhosConfigurables -> OhosExecutor()
                 else -> JUnit5Assertions.fail { "Running tests for $testTarget on $hostTarget is not supported yet." }
             }
         }

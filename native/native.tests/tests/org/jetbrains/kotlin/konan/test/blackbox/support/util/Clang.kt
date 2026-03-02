@@ -65,11 +65,15 @@ internal fun AbstractNativeSimpleTest.compileWithClang(
         ClangMode.C -> "clang"
         ClangMode.CXX -> "clang++"
     }.let { if (host.family == Family.MINGW) "$it.exe" else it }
-    val clangPath = when (clangDistribution) {
-        ClangDistribution.Toolchain -> "${configurables.absoluteTargetToolchain}/bin/$clangExecutableName"
-        ClangDistribution.Llvm -> "${configurables.absoluteLlvmHome}/bin/$clangExecutableName"
+    val clangPath = if (configurables.target.family == Family.OHOS ) {
+        "/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm/bin/$clangExecutableName"
+    } else {
+        when (clangDistribution) {
+            ClangDistribution.Toolchain -> "${configurables.absoluteTargetToolchain}/bin/$clangExecutableName"
+            ClangDistribution.Llvm -> "${configurables.absoluteLlvmHome}/bin/$clangExecutableName"
+        }
     }
-    val clangArguments = buildList<String> {
+    var clangArguments = buildList<String> {
         val clangArgsProvider = ClangArgs.Native(configurables)
         addAll(
             when (clangMode) {
@@ -80,7 +84,7 @@ internal fun AbstractNativeSimpleTest.compileWithClang(
         addAll(sourceFiles.map { it.absolutePath })
         addAll(includeDirectories.flatMap { listOf("-I", it.absolutePath) })
         add("-g")
-        if (fmodules) add("-fmodules")
+        if (fmodules && configurables.target.family != Family.OHOS) add("-fmodules")
         addAll(frameworkDirectories.flatMap { listOf("-F", it.absolutePath) })
         addAll(libraryDirectories.flatMap { listOf("-L", it.absolutePath) }.toTypedArray())
         addAll(libraries.map { "-l$it" })
@@ -110,6 +114,15 @@ internal fun AbstractNativeSimpleTest.compileWithClang(
         addAll(additionalClangFlags)
         add("-o")
         add(outputFile.absolutePath)
+    }
+    if (configurables.target.family == Family.OHOS) {
+        clangArguments = clangArguments.joinToString("|").replace(
+            configurables.absoluteTargetToolchain,
+            "/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/llvm"
+        ).replace(
+            configurables.absoluteTargetSysRoot,
+            "/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot"
+        ).split("|")
     }
     val compilationToolCallResult = try {
         val result = runProcess(clangPath, *clangArguments.toTypedArray()) {

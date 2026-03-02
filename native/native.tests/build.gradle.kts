@@ -62,6 +62,17 @@ val gcTest = nativeTest("gcTest", "gc")
 val stringProxyTest = if ("Mac OS X" in System.getProperty("os.name")) nativeTest("stringProxyTest", "StringProxy") else null
 // endregion
 
+val compileTimeOptimizationTest = nativeTest("compileTimeOptimizationTest", "frontend-fir")
+
+val allFirTestsExclude = nativeTest("allFirTestsExclude", "frontend-fir") {
+    filter {
+        excludeTestsMatching("org.jetbrains.kotlin.konan.test.blackbox.FirStdlibTest")
+        excludeTestsMatching("org.jetbrains.kotlin.konan.test.blackbox.FirNativeCodegenBoxTestGenerated")
+        excludeTestsMatching("org.jetbrains.kotlin.konan.test.blackbox.FirNativeCodegenBoxTestNoPLGenerated")
+        excludeTestsMatching("org.jetbrains.kotlin.konan.test.blackbox.FirNativeCodegenLocalTestGenerated")
+    }
+}
+
 val testTags = findProperty("kotlin.native.tests.tags")?.toString()
 // Note: arbitrary JUnit tag expressions can be used in this property.
 // See https://junit.org/junit5/docs/current/user-guide/#running-tests-tag-expressions
