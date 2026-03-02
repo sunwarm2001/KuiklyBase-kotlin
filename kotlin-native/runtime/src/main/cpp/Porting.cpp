@@ -42,6 +42,13 @@
 #include "Porting.h"
 #include "KAssert.h"
 
+#ifdef KONAN_OHOS
+// patch __fortify_error symbol not found error on ohos
+void __fortify_error(const char* info, ...) {
+    // do nothing
+}
+#endif
+
 using namespace kotlin;
 
 namespace konan {
@@ -66,8 +73,9 @@ void consoleWriteUtf8(const char* utf8, uint32_t sizeBytes) {
   } else {
     ::write(STDOUT_FILENO, utf8, sizeBytes);
   }
-#elif KONAN_OHOS
-  OH_LOG_Print(LOG_APP, LOG_INFO, LOG_DOMAIN, "Konan_main", "%{public}s", utf8);
+// todo: a more permanent solution, a constant for build type @linhandev
+// #elif KONAN_OHOS
+//   OH_LOG_Print(LOG_APP, LOG_INFO, LOG_DOMAIN, "Konan_main", "%{public}s", utf8);
 #else
   ::write(STDOUT_FILENO, utf8, sizeBytes);
 #endif
@@ -81,8 +89,9 @@ void consoleErrorUtf8(const char* utf8, uint32_t sizeBytes) {
   } else {
     ::write(STDERR_FILENO, utf8, sizeBytes);
   }
-#elif KONAN_OHOS
-  OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "Konan_main", "%{public}s", utf8);
+// todo: a more permanent solution, a constant for build type @linhandev
+// #elif KONAN_OHOS
+//   OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "Konan_main", "%{public}s", utf8);
 #else
   ::write(STDERR_FILENO, utf8, sizeBytes);
 #endif

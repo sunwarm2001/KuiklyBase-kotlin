@@ -181,4 +181,11 @@ internal object KotlinMultiplatformSourceSetConventionsImpl : KotlinMultiplatfor
     override val NamedDomainObjectContainer<KotlinSourceSet>.androidMain by KotlinSourceSetConvention
     override val NamedDomainObjectContainer<KotlinSourceSet>.androidUnitTest by KotlinSourceSetConvention
     override val NamedDomainObjectContainer<KotlinSourceSet>.androidInstrumentedTest by KotlinSourceSetConvention
+
+    override val NamedDomainObjectContainer<KotlinSourceSet>.ohosTest by KotlinSourceSetConvention
+    override val NamedDomainObjectContainer<KotlinSourceSet>.ohosMain by KotlinSourceSetConvention
+    override val NamedDomainObjectContainer<KotlinSourceSet>.ohosArm64Main by KotlinSourceSetConvention
+    override val NamedDomainObjectContainer<KotlinSourceSet>.ohosArm64Test by KotlinSourceSetConvention
+
+
 }

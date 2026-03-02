@@ -23,7 +23,19 @@ include ':videoplayer'
 include ':framework'
 include ':startup'
 include ':logging'
-if (System.getProperty("os.name") == "Mac OS X") {
+
+def isAppleTarget = false
+if (hasProperty("crossTarget")) {
+    def target = getProperty("crossTarget").toString().toLowerCase()
+    isAppleTarget = target.contains("ios") ||
+                    target.contains("macos") ||
+                    target.contains("watchos") ||
+                    target.contains("tvos")
+} else {
+    isAppleTarget = System.getProperty("os.name") == "Mac OS X"
+}
+
+if (isAppleTarget) {
     include ':objcinterop'
     include ':swiftinterop'
     if (hasProperty("runExcludedBenchmarks")) {
